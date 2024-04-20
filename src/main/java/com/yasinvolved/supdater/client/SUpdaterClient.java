@@ -2,6 +2,7 @@ package com.yasinvolved.supdater.client;
 
 import com.google.gson.*;
 import com.yasinvolved.supdater.utils.ExpandVars;
+import com.yasinvolved.supdater.utils.STxtFilter;
 import net.fabricmc.api.ClientModInitializer;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -12,9 +13,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -27,6 +26,7 @@ public class SUpdaterClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         try {
+            removeOldRelease();
             CloseableHttpClient httpClient = HttpClientBuilder.create().build();
             HttpGet request = new HttpGet(URL);
             request.addHeader("content-type", "application/json");
@@ -45,6 +45,14 @@ public class SUpdaterClient implements ClientModInitializer {
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
         } catch (Exception ex) {
             LOGGER.log(Level.ERROR, ex.getMessage());
+        }
+    }
+
+    private void removeOldRelease() {
+        File folder = new File(ExpandVars.expandvars("${appdata}\\.minecraft\\resourcepacks"));
+        File[] listOfFiles = folder.listFiles(new STxtFilter());
+        for (File oldTxt : listOfFiles) {
+            oldTxt.delete();
         }
     }
 }
