@@ -2,7 +2,6 @@ package com.yasinvolved.supdater.client;
 
 import com.google.gson.*;
 import com.yasinvolved.supdater.utils.ExpandVars;
-import com.yasinvolved.supdater.utils.STxtFilter;
 import net.fabricmc.api.ClientModInitializer;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -50,9 +49,11 @@ public class SUpdaterClient implements ClientModInitializer {
 
     private void removeOldRelease() {
         File folder = new File(ExpandVars.expandvars("${appdata}\\.minecraft\\resourcepacks"));
-        File[] listOfFiles = folder.listFiles(new STxtFilter());
+        File[] listOfFiles = folder.listFiles();
+        if (listOfFiles == null) return;
         for (File oldTxt : listOfFiles) {
-            oldTxt.delete();
+            if (!oldTxt.getName().startsWith("sosnowiecki-txt")) continue;
+            Boolean result = oldTxt.delete();
         }
     }
 }
